@@ -1,5 +1,12 @@
 #include <SFML/Graphics.hpp>
 using namespace sf;
+
+void updateBranches(int);
+const int NUM_BRANCHES=6;
+enum class side{LEFT,RIGHT,NONE};
+side branchPositions[NUM_BRANCHES];
+Sprite Branches[NUM_BRANCHES];
+
 int main()
 {
     Vector2f resolution;
@@ -22,13 +29,6 @@ int main()
     Sprite treeSprite;
     treeSprite.setTexture(treeTexture);
     treeSprite.setPosition(((resolution.x / 2) - (300 / 2)), 0);
-
-    // SET BRANCH
-    Texture branchTexture;
-    branchTexture.loadFromFile("./Sprites/graphics/branch.png");
-    Sprite branchSprite;
-    branchSprite.setTexture(branchTexture);
-    branchSprite.setPosition((resolution.x / 2) + 150, ((resolution.y / 2) - 50));
 
     // SET BEE
     Texture beeTexture;
@@ -102,9 +102,32 @@ int main()
     messageText.setCharacterSize(100);
     messageText.setString("Press Enter To Start");
     FloatRect textRect = messageText.getLocalBounds();
-    //messageText.setPosition();
+    messageText.setOrigin((textRect.left+textRect.width)/2,(textRect.top+textRect.height)/2);
+    messageText.setPosition(resolution.x/2,resolution.y/2);
 
+    // SET BRANCH
+    Texture branchTexture;
+    branchTexture.loadFromFile("./Sprites/graphics/branch.png");
+    for(int i = 0 ; i<NUM_BRANCHES ; i++){
+        Branches[i].setTexture(branchTexture);
+        Branches[i].setOrigin(220,20);//Branch width/2 , (height/2)-20
+        Branches[i].setPosition(-2000,-2000);
+    }
+    updateBranches(1);
+    updateBranches(2);
+    updateBranches(3);
+    updateBranches(4);
+    updateBranches(5);
 
+    
+    //SET PLAYER
+    Texture playerTexture;
+    playerTexture.loadFromFile("./Sprites/graphics/player.png");
+    Sprite playerSprite;
+    playerSprite.setTexture(playerTexture);
+    playerSprite.setPosition((resolution.x/2)-400,(resolution.y)-300);
+    side sidePlayer=side::LEFT;
+ 
 
     // GAME LOOP
     while (window.isOpen())
@@ -116,6 +139,10 @@ int main()
             if (event.type == Event::Closed)
             {
                 window.close();
+            }
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Enter){
+                paused = !paused;
+                timeRemaining = 6.0f;
             }
         } //......]
         if (Keyboard::isKeyPressed(Keyboard::Escape)) //[Loop Event Handling...
@@ -194,7 +221,7 @@ int main()
             //CLOUD MOVEMENT1
             if(!cloudActive1){
                 srand((int)time(0)*10);
-                cloudSpeed1=rand()%201;
+                cloudSpeed1=rand()%190;
                 srand(time(0)*10);
                 cloudHeight1 = rand()%150;
                 cloudSprite1.setPosition(-200,cloudHeight1);
@@ -211,7 +238,7 @@ int main()
             //CLOUD MOVEMENT2
             if(!cloudActive2){
                 srand((int)time(0)*10);
-                cloudSpeed2=rand()%202;
+                cloudSpeed2=rand()%188;
                 srand(time(0)*10);
                 cloudHeight2 = rand()%150+150;
                 cloudSprite2.setPosition(-200,cloudHeight2);
@@ -228,7 +255,7 @@ int main()
             //CLOUD MOVEMENT3
             if(!cloudActive3){
                 srand((int)time(0)*10);
-                cloudSpeed3=rand()%200;
+                cloudSpeed3=rand()%195;
                 srand(time(0)*10);
                 cloudHeight3 = rand()%300+150;
                 cloudSprite3.setPosition(-200,cloudHeight3);
@@ -242,27 +269,71 @@ int main()
                     cloudActive3= false;
                 }
             }
+            //BRANCHES
+            for(int i = 0 ; i<NUM_BRANCHES ; i++){
+                float branchHeight = i*150;
+                if(branchPositions[i]==side::LEFT){
+                    Branches[i].setPosition(((resolution.x/2)-150)-200,branchHeight);
+                    Branches[i].setRotation(180);//FLIP
+                }
+                else if(branchPositions[i]==side::RIGHT){
+                    Branches[i].setPosition(((resolution.x/2)+150)+220,branchHeight);
+                    Branches[i].setRotation(0);//FLIP
+                }
+                else{
+                    Branches[i].setPosition(3000,branchHeight);
+                }
+            }
+            updateBranches(1);
+            updateBranches(2);
+            updateBranches(3);
+            updateBranches(4);
+            updateBranches(5);
 
-
+            //PLAYER
+          
            
         } //......pauseHandling]
         window.clear();
         window.draw(backgroundSprite);
-        // window.draw(branchSprite);
-        // window.draw(beeSprite3);
-        // window.draw(beeSprite4);
         window.draw(cloudSprite1);
         window.draw(cloudSprite2);
         window.draw(cloudSprite3);
+        for(int i = 0 ; i<NUM_BRANCHES ; i++){
+            window.draw(Branches[i]);
+        }
         window.draw(treeSprite);
         window.draw(beeSprite1);
         window.draw(timeBar);
-
+        window.draw(playerSprite);
+        window.draw(messageText);
         window.display();
     }
     return 0;
 }
 
+void updateBranches(int seed){
+    //Shift Each Position 1 place to the right starting from last
+    for(int i = NUM_BRANCHES-1 ; i>0 ; i--){
+        branchPositions[i] = branchPositions[i-1];
+    }
+    //Update 0th position
+    srand(time(0)+seed);
+    int r = rand()%3;
+    switch (r)
+    {
+    case 0:
+        branchPositions[0]=side::LEFT;
+        break;
+    case 1:
+        branchPositions[0]=side::RIGHT;
+        break;
+    
+    default:
+        branchPositions[0]=side::NONE;
+        break;
+    }
+}
 
 
 
