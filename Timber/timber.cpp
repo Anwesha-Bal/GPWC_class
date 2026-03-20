@@ -2,8 +2,13 @@
 using namespace sf;
 
 void updateBranches(int);
-const int NUM_BRANCHES=6;
-enum class side{LEFT,RIGHT,NONE};
+const int NUM_BRANCHES = 6;
+enum class side
+{
+    LEFT,
+    RIGHT,
+    NONE
+};
 side branchPositions[NUM_BRANCHES];
 Sprite Branches[NUM_BRANCHES];
 
@@ -45,13 +50,13 @@ int main()
     cloudTexture.loadFromFile("Sprites/graphics/cloud.png");
     Sprite cloudSprite1;
     cloudSprite1.setTexture(cloudTexture);
-    //cloudSprite1.setPosition((resolution.x / 2) - 600, (resolution.y / 2) - 450);
+    // cloudSprite1.setPosition((resolution.x / 2) - 600, (resolution.y / 2) - 450);
     Sprite cloudSprite2;
     cloudSprite2.setTexture(cloudTexture);
-    //cloudSprite2.setPosition((resolution.x / 2) + 425, (resolution.y / 2) - 450);
+    // cloudSprite2.setPosition((resolution.x / 2) + 425, (resolution.y / 2) - 450);
     Sprite cloudSprite3;
     cloudSprite3.setTexture(cloudTexture);
-    //cloudSprite3.setPosition((resolution.x / 2) - 200, (resolution.y / 2) - 450);
+    // cloudSprite3.setPosition((resolution.x / 2) - 200, (resolution.y / 2) - 450);
 
     // BEE1
     float bee1Speed = 0.0f;
@@ -65,20 +70,18 @@ int main()
     // Clock Object
     Clock clock;
 
-    //Cloud1
+    // Cloud1
     float cloudSpeed1 = 0.0f;
     float cloudHeight1 = 0.0f;
     bool cloudActive1 = false;
-    //Cloud2
+    // Cloud2
     float cloudSpeed2 = 0.0f;
     float cloudHeight2 = 0.0f;
     bool cloudActive2 = false;
-    //Cloud3
+    // Cloud3
     float cloudSpeed3 = 0.0f;
     float cloudHeight3 = 0.0f;
     bool cloudActive3 = false;
-
-
 
     // TIME BAR
     RectangleShape timeBar;
@@ -91,9 +94,8 @@ int main()
     float timeBarWidthPerSecond = timeBarStartWidth / timeRemaining;
     bool paused = true; // Checks whether game started or not
 
-
-    //FONT AND TEXT
-    //TEXT FOR STARTING GAME
+    // FONT AND TEXT
+    // TEXT FOR STARTING GAME
     Font font1;
     font1.loadFromFile("./Sprites/fonts/KOMIKAP_.ttf");
     Text messageText;
@@ -102,16 +104,17 @@ int main()
     messageText.setCharacterSize(100);
     messageText.setString("Press Enter To Start");
     FloatRect textRect = messageText.getLocalBounds();
-    messageText.setOrigin((textRect.left+textRect.width)/2,(textRect.top+textRect.height)/2);
-    messageText.setPosition(resolution.x/2,resolution.y/2);
+    messageText.setOrigin((textRect.left + textRect.width) / 2, (textRect.top + textRect.height) / 2);
+    messageText.setPosition(resolution.x / 2, resolution.y / 2);
 
     // SET BRANCH
     Texture branchTexture;
     branchTexture.loadFromFile("./Sprites/graphics/branch.png");
-    for(int i = 0 ; i<NUM_BRANCHES ; i++){
+    for (int i = 0; i < NUM_BRANCHES; i++)
+    {
         Branches[i].setTexture(branchTexture);
-        Branches[i].setOrigin(220,20);//Branch width/2 , (height/2)-20
-        Branches[i].setPosition(-2000,-2000);
+        Branches[i].setOrigin(220, 20); // Branch width/2 , (height/2)-20
+        Branches[i].setPosition(-2000, -2000);
     }
     updateBranches(1);
     updateBranches(2);
@@ -119,16 +122,45 @@ int main()
     updateBranches(4);
     updateBranches(5);
 
-    
-    //SET PLAYER
+    // SET PLAYER
     Texture playerTexture;
     playerTexture.loadFromFile("./Sprites/graphics/player.png");
     Sprite playerSprite;
     playerSprite.setTexture(playerTexture);
-    playerSprite.setPosition((resolution.x/2)-400,(resolution.y)-300);
-    side sidePlayer=side::LEFT;
- 
+    playerSprite.setPosition((resolution.x / 2) - 400, (resolution.y) - 300);
+    side sidePlayer = side::LEFT;
 
+    // SET RIP
+    Texture ripTexture;
+    ripTexture.loadFromFile("./Sprites/graphics/rip.png");
+    Sprite ripSprite;
+    ripSprite.setTexture(ripTexture);
+    ripSprite.setPosition(600, 860);
+
+    // SET AXE
+    Texture axeTexture;
+    axeTexture.loadFromFile("./Sprites/graphics/axe.png");
+    Sprite axeSprite;
+    axeSprite.setTexture(axeTexture);
+    axeSprite.setPosition(700, 830);
+    const int AXE_POSITION_LEFT = 700;
+    const int AXE_POSITION_RIGHT = 1075;
+
+    // SET LOG
+    Texture logtexture;
+    logtexture.loadFromFile("./Sprites/graphics/log.png");
+    Sprite logSprite;
+    logSprite.setTexture(logtexture);
+    logSprite.setPosition(810, 720);
+
+    // FLYING LOG
+    bool logActive = false;
+    float logSpeedX = 1000;
+    float logSpeedY = -1500;
+
+    // Control Player Input
+    bool acceptInput = false;
+    int score = 0;
     // GAME LOOP
     while (window.isOpen())
     {
@@ -140,10 +172,12 @@ int main()
             {
                 window.close();
             }
-            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Enter){
+            if (event.type == Event::KeyPressed && event.key.code == Keyboard::Enter)
+            {
                 paused = !paused;
                 timeRemaining = 6.0f;
             }
+
         } //......]
         if (Keyboard::isKeyPressed(Keyboard::Escape)) //[Loop Event Handling...
         {
@@ -153,23 +187,87 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Return))
         { //[Game pause....
             paused = false;
-            timeRemaining = 5.0f; // Game Restart from remaining 5 sec
+            timeRemaining = 6.0f; // Game Restart from remaining 5 sec
+            // score = 0;
+            for (int i = 0; i < NUM_BRANCHES; i++)
+            {
+                branchPositions[i] = side::NONE;
+            }
+            // GRAVE STONE HIDDEN
+            ripSprite.setPosition(2000, 2000);
+            // MOve the player into the position
+            playerSprite.setPosition(580, 720);
+            // Make Accept Input true
+            acceptInput = true;
         } //.....]
+        // PLAYER
+        Time dt1 = clock.restart();
+        if (acceptInput)
+        {
+            // Handling the right key
+            if (Keyboard::isKeyPressed(Keyboard::Right))
+            {
+                // UPDATE SCORE
+                score++;
+                //ACTIVE LOG
+                logActive = true;
+                // Update TimeRemainin
+                timeRemaining -= dt1.asSeconds();
+                // Set the player to right sie
+                sidePlayer = side::LEFT;
+                // set the player position
+                playerSprite.setPosition(580, 720);
+                // Set axe position
+                axeSprite.setPosition(AXE_POSITION_LEFT, axeSprite.getPosition().y);
+                // set log position after fly
+                logSprite.setPosition(810, 720);
+                logSpeedX = -5000;
+                // Update Branches
+                updateBranches(score);
+                // acceptInput to false
+                //acceptInput = false;
+                
+                // Chopping Sound
+            }
+
+            // Handling Left key
+            if (Keyboard::isKeyPressed(Keyboard::Left))
+            {
+                // UPDATE SCORE
+                score++;
+                //ACTIVE LOG
+                logActive = true;
+                // Update TimeRemainin
+                timeRemaining -= dt1.asSeconds();
+                // Set the player to right sie
+                sidePlayer = side::RIGHT;
+                // set the player position
+                playerSprite.setPosition(1200, 720);
+                // Set axe position
+                axeSprite.setPosition(AXE_POSITION_RIGHT, axeSprite.getPosition().y);
+                // set log position after fly
+                logSprite.setPosition(810, 720);
+                logSpeedX = 5000;
+                // Update Branches
+                updateBranches(score);
+                // acceptInput to false
+                //acceptInput = false;
+                // Chopping Sound
+            }
+        }
 
         if (!paused)
         { //[Pause Handling.......
             // Scene updates if game is on
-            Time dt1 = clock.restart();
+            //messageText.setPosition(-2000, -2000);
+
             timeRemaining -= dt1.asSeconds();
-            if(timeRemaining<=0.0){
+            if (timeRemaining <= 0.0)
+            {
                 paused = true;
             }
 
-            timeBar.setSize(Vector2f(timeBarWidthPerSecond*timeRemaining,timeBarHeight));
-
-
-
-
+            timeBar.setSize(Vector2f(timeBarWidthPerSecond * timeRemaining, timeBarHeight));
 
             // BEE MOVEMET
             // BEE Movement 1
@@ -218,16 +316,18 @@ int main()
             //     }
             // }
 
-            //CLOUD MOVEMENT1
-            if(!cloudActive1){
-                srand((int)time(0)*10);
-                cloudSpeed1=rand()%190;
-                srand(time(0)*10);
-                cloudHeight1 = rand()%150;
-                cloudSprite1.setPosition(-200,cloudHeight1);
+            // CLOUD MOVEMENT1
+            if (!cloudActive1)
+            {
+                srand((int)time(0) * 10);
+                cloudSpeed1 = rand() % 190;
+                srand(time(0) * 10);
+                cloudHeight1 = rand() % 150;
+                cloudSprite1.setPosition(-200, cloudHeight1);
                 cloudActive1 = true;
             }
-            else{
+            else
+            {
                 float x = cloudSprite1.getPosition().x + (cloudSpeed1 * dt1.asSeconds());
                 cloudSprite1.setPosition(x, cloudSprite1.getPosition().y);
                 if (cloudSprite1.getPosition().x > 1920)
@@ -235,16 +335,18 @@ int main()
                     cloudActive1 = false;
                 }
             }
-            //CLOUD MOVEMENT2
-            if(!cloudActive2){
-                srand((int)time(0)*10);
-                cloudSpeed2=rand()%188;
-                srand(time(0)*10);
-                cloudHeight2 = rand()%150+150;
-                cloudSprite2.setPosition(-200,cloudHeight2);
+            // CLOUD MOVEMENT2
+            if (!cloudActive2)
+            {
+                srand((int)time(0) * 10);
+                cloudSpeed2 = rand() % 188;
+                srand(time(0) * 10);
+                cloudHeight2 = rand() % 150 + 150;
+                cloudSprite2.setPosition(-200, cloudHeight2);
                 cloudActive2 = true;
             }
-            else{
+            else
+            {
                 float x = cloudSprite2.getPosition().x + (cloudSpeed2 * dt1.asSeconds());
                 cloudSprite2.setPosition(x, cloudSprite2.getPosition().y);
                 if (cloudSprite2.getPosition().x > 1920)
@@ -252,177 +354,211 @@ int main()
                     cloudActive2 = false;
                 }
             }
-            //CLOUD MOVEMENT3
-            if(!cloudActive3){
-                srand((int)time(0)*10);
-                cloudSpeed3=rand()%195;
-                srand(time(0)*10);
-                cloudHeight3 = rand()%300+150;
-                cloudSprite3.setPosition(-200,cloudHeight3);
+            // CLOUD MOVEMENT3
+            if (!cloudActive3)
+            {
+                srand((int)time(0) * 10);
+                cloudSpeed3 = rand() % 195;
+                srand(time(0) * 10);
+                cloudHeight3 = rand() % 300 + 150;
+                cloudSprite3.setPosition(-200, cloudHeight3);
                 cloudActive3 = true;
             }
-            else{
+            else
+            {
                 float x = cloudSprite3.getPosition().x + (cloudSpeed3 * dt1.asSeconds());
                 cloudSprite3.setPosition(x, cloudSprite3.getPosition().y);
                 if (cloudSprite3.getPosition().x > 1920)
                 {
-                    cloudActive3= false;
+                    cloudActive3 = false;
                 }
             }
-            //BRANCHES
-            for(int i = 0 ; i<NUM_BRANCHES ; i++){
-                float branchHeight = i*150;
-                if(branchPositions[i]==side::LEFT){
-                    Branches[i].setPosition(((resolution.x/2)-150)-200,branchHeight);
-                    Branches[i].setRotation(180);//FLIP
-                }
-                else if(branchPositions[i]==side::RIGHT){
-                    Branches[i].setPosition(((resolution.x/2)+150)+220,branchHeight);
-                    Branches[i].setRotation(0);//FLIP
-                }
-                else{
-                    Branches[i].setPosition(3000,branchHeight);
-                }
-            }
-            updateBranches(1);
-            updateBranches(2);
-            updateBranches(3);
-            updateBranches(4);
-            updateBranches(5);
 
-            //PLAYER
-          
-           
+            // BRANCHES
+            for (int i = 0; i < NUM_BRANCHES; i++)
+            {
+                float branchHeight = i * 150;
+                if (branchPositions[i] == side::LEFT)
+                {
+                    Branches[i].setPosition(((resolution.x / 2) - 150) - 200, branchHeight);
+                    Branches[i].setRotation(180); // FLIP
+                }
+                else if (branchPositions[i] == side::RIGHT)
+                {
+                    Branches[i].setPosition(((resolution.x / 2) + 150) + 220, branchHeight);
+                    Branches[i].setRotation(0); // FLIP
+                }
+                else
+                {
+                    Branches[i].setPosition(3000, branchHeight);
+                }
+            }
+            // updateBranches(1);
+            // updateBranches(2);
+            // updateBranches(3);//WE HAVE ALREADY DONE IT IN UPDATE BRANCH
+            // updateBranches(4);
+            // updateBranches(5);
+
+            //HANDLE THE FLYING LOG
+            if(logActive){
+                logSprite.setPosition((logSprite.getPosition().x)+(logSpeedX*dt1.asSeconds()),(logSprite.getPosition().y)+(logSpeedY*dt1.asSeconds()));
+                if(logSprite.getPosition().x<-100 || logSprite.getPosition().x>2000){
+                    logSprite.setPosition(810,720);
+                    logActive = false;
+                }
+            }
+            // HAS THE PLAYER BEEN SQUISHED BY BRANCH
+            if (branchPositions[5] == sidePlayer)
+            {
+                // PAUSE THE GAME
+                paused = true;
+                // ACCEPT INPUT
+                acceptInput = false;
+                // HIDE PLAYER
+                playerSprite.setPosition(2000, 2000);
+                // SHOW GRAVE STONE
+                ripSprite.setPosition(600, 860);
+                // SHOW GAME OVER MESSAGE
+                messageText.setString("Game Over");
+                textRect = messageText.getLocalBounds();
+                messageText.setOrigin((textRect.left + textRect.width) / 2.0, (textRect.top + textRect.height) / 2.0);
+                messageText.setPosition(resolution.x / 2, resolution.y / 2);
+                // PLAY DEATH SOUND
+            }
+
         } //......pauseHandling]
         window.clear();
         window.draw(backgroundSprite);
         window.draw(cloudSprite1);
         window.draw(cloudSprite2);
         window.draw(cloudSprite3);
-        for(int i = 0 ; i<NUM_BRANCHES ; i++){
+        for (int i = 0; i < NUM_BRANCHES; i++)
+        {
             window.draw(Branches[i]);
         }
         window.draw(treeSprite);
+        window.draw(playerSprite);
+        window.draw(axeSprite);
+        window.draw(logSprite);
+        window.draw(ripSprite);
         window.draw(beeSprite1);
         window.draw(timeBar);
-        window.draw(playerSprite);
+   
         window.draw(messageText);
         window.display();
     }
     return 0;
 }
 
-void updateBranches(int seed){
-    //Shift Each Position 1 place to the right starting from last
-    for(int i = NUM_BRANCHES-1 ; i>0 ; i--){
-        branchPositions[i] = branchPositions[i-1];
+void updateBranches(int seed)
+{
+    // Shift Each Position 1 place to the right starting from last
+    for (int i = NUM_BRANCHES - 1; i > 0; i--)
+    {
+        branchPositions[i] = branchPositions[i - 1];
     }
-    //Update 0th position
-    srand(time(0)+seed);
-    int r = rand()%3;
+    // Update 0th position
+    srand(time(0) + seed);
+    int r = rand() % 3;
     switch (r)
     {
     case 0:
-        branchPositions[0]=side::LEFT;
+        branchPositions[0] = side::LEFT;
         break;
     case 1:
-        branchPositions[0]=side::RIGHT;
+        branchPositions[0] = side::RIGHT;
         break;
-    
+
     default:
-        branchPositions[0]=side::NONE;
+        branchPositions[0] = side::NONE;
         break;
     }
 }
 
+// // MOVING BEE1
+// Vector2f beePosition1 = beeSprite1.getPosition();
+// Vector2f iPosition1 = beeSprite1.getPosition();
+// if (beePosition1.x - 2 < -100)
+// {
+//     beeSprite1.setPosition(1920, iPosition1.y);
+// }
+// else
+// {
+//     beePosition1.x -= 0.12;
+//     beeSprite1.setPosition(beePosition1);
+// }
+// // MOVING BEE2
+// Vector2f beePosition2 = beeSprite2.getPosition();
+// Vector2f iPosition2 = beeSprite2.getPosition();
+// if (beePosition2.x - 2 < -100)
+// {
+//     beeSprite2.setPosition(1920, iPosition2.y);
+// }
+// else
+// {
+//     beePosition2.x -= 0.12;
+//     beeSprite2.setPosition(beePosition2);
+// }
 
+// // MOVING BEE3
+// Vector2f beePosition3 = beeSprite3.getPosition();
+// Vector2f iPosition3 = beeSprite3.getPosition();
 
+// if (beePosition3.x - 2 < -100)
+// {
+//     beeSprite3.setPosition(1920, iPosition3.y);
+// }
+// else
+// {
+//     beePosition3.x -= 0.12;
+//     beeSprite3.setPosition(beePosition3);
+// }
 
-
- // // MOVING BEE1
-            // Vector2f beePosition1 = beeSprite1.getPosition();
-            // Vector2f iPosition1 = beeSprite1.getPosition();
-            // if (beePosition1.x - 2 < -100)
-            // {
-            //     beeSprite1.setPosition(1920, iPosition1.y);
-            // }
-            // else
-            // {
-            //     beePosition1.x -= 0.12;
-            //     beeSprite1.setPosition(beePosition1);
-            // }
-            // // MOVING BEE2
-            // Vector2f beePosition2 = beeSprite2.getPosition();
-            // Vector2f iPosition2 = beeSprite2.getPosition();
-            // if (beePosition2.x - 2 < -100)
-            // {
-            //     beeSprite2.setPosition(1920, iPosition2.y);
-            // }
-            // else
-            // {
-            //     beePosition2.x -= 0.12;
-            //     beeSprite2.setPosition(beePosition2);
-            // }
-
-            // // MOVING BEE3
-            // Vector2f beePosition3 = beeSprite3.getPosition();
-            // Vector2f iPosition3 = beeSprite3.getPosition();
-
-            // if (beePosition3.x - 2 < -100)
-            // {
-            //     beeSprite3.setPosition(1920, iPosition3.y);
-            // }
-            // else
-            // {
-            //     beePosition3.x -= 0.12;
-            //     beeSprite3.setPosition(beePosition3);
-            // }
-
-            // // MOVING BEE4
-            // Vector2f beePosition4 = beeSprite4.getPosition();
-            // Vector2f iPosition4 = beeSprite4.getPosition();
-            // if (beePosition4.x - 2 < -100)
-            // {
-            //     beeSprite4.setPosition(1920, iPosition4.y);
-            // }
-            // else
-            // {
-            //     beePosition4.x -= 0.12;
-            //     beeSprite4.setPosition(beePosition4);
-            // }
-            // MOVING CLOUD1
-            // Vector2f cloudPosition1 = cloudSprite1.getPosition();
-            // Vector2f icPosition1 = cloudSprite1.getPosition();
-            // if (cloudPosition1.x + 2 > 1600)
-            // {
-            //     cloudSprite1.setPosition(-50, icPosition1.y);
-            // }
-            // else
-            // {
-            //     cloudPosition1.x += 0.10;
-            //     cloudSprite1.setPosition(cloudPosition1);
-            // }
-            // // MOVING CLOUD2
-            // Vector2f cloudPosition2 = cloudSprite2.getPosition();
-            // Vector2f icPosition2 = cloudSprite2.getPosition();
-            // if (cloudPosition2.x + 2 > 1600)
-            // {
-            //     cloudSprite2.setPosition(-50, icPosition2.y);
-            // }
-            // else
-            // {
-            //     cloudPosition2.x += 0.12;
-            //     cloudSprite2.setPosition(cloudPosition2);
-            // }
-            // // MOVING CLOUD3
-            // Vector2f cloudPosition3 = cloudSprite3.getPosition();
-            // Vector2f icPosition3 = cloudSprite3.getPosition();
-            // if (cloudPosition3.x + 2 > 1600)
-            // {
-            //     cloudSprite3.setPosition(-50, icPosition3.y);
-            // }
-            // else
-            // {
-            //     cloudPosition3.x += 0.15;
-            //     cloudSprite3.setPosition(cloudPosition3);
-            // }
+// // MOVING BEE4
+// Vector2f beePosition4 = beeSprite4.getPosition();
+// Vector2f iPosition4 = beeSprite4.getPosition();
+// if (beePosition4.x - 2 < -100)
+// {
+//     beeSprite4.setPosition(1920, iPosition4.y);
+// }
+// else
+// {
+//     beePosition4.x -= 0.12;
+//     beeSprite4.setPosition(beePosition4);
+// }
+// MOVING CLOUD1
+// Vector2f cloudPosition1 = cloudSprite1.getPosition();
+// Vector2f icPosition1 = cloudSprite1.getPosition();
+// if (cloudPosition1.x + 2 > 1600)
+// {
+//     cloudSprite1.setPosition(-50, icPosition1.y);
+// }
+// else
+// {
+//     cloudPosition1.x += 0.10;
+//     cloudSprite1.setPosition(cloudPosition1);
+// }
+// // MOVING CLOUD2
+// Vector2f cloudPosition2 = cloudSprite2.getPosition();
+// Vector2f icPosition2 = cloudSprite2.getPosition();
+// if (cloudPosition2.x + 2 > 1600)
+// {
+//     cloudSprite2.setPosition(-50, icPosition2.y);
+// }
+// else
+// {
+//     cloudPosition2.x += 0.12;
+//     cloudSprite2.setPosition(cloudPosition2);
+// }
+// // MOVING CLOUD3
+// Vector2f cloudPosition3 = cloudSprite3.getPosition();
+// Vector2f icPosition3 = cloudSprite3.getPosition();
+// if (cloudPosition3.x + 2 > 1600)
+// {
+//     cloudSprite3.setPosition(-50, icPosition3.y);
+// }
+// else
+// {
+//     cloudPosition3.x += 0.15;
+//     cloudSprite3.setPosition(cloudPosition3);
+// }
