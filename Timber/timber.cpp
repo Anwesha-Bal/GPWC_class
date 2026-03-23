@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include<iostream>
 using namespace sf;
+using namespace std;
 
 void updateBranches(int);
 const int NUM_BRANCHES = 6;
@@ -116,11 +118,20 @@ int main()
         Branches[i].setOrigin(220, 20); // Branch width/2 , (height/2)-20
         Branches[i].setPosition(-2000, -2000);
     }
-    updateBranches(1);
-    updateBranches(2);
-    updateBranches(3);
-    updateBranches(4);
-    updateBranches(5);
+    //updateBranches(1);
+    //updateBranches(2);
+    //updateBranches(3);
+    //updateBranches(4);
+    //updateBranches(5);
+
+    //SET SCORE
+    Text score1;
+    score1.setFont(font1);
+    score1.setCharacterSize(80);
+    score1.setFillColor(Color::Red);
+    score1.setPosition(20, 20); 
+    score1.setString("Score = 0");
+
 
     // SET PLAYER
     Texture playerTexture;
@@ -151,7 +162,7 @@ int main()
     logtexture.loadFromFile("./Sprites/graphics/log.png");
     Sprite logSprite;
     logSprite.setTexture(logtexture);
-    logSprite.setPosition(810, 720);
+    logSprite.setPosition((resolution.x/2)-(300/2), (resolution.y/2)+200);
 
     // FLYING LOG
     bool logActive = false;
@@ -209,6 +220,7 @@ int main()
             {
                 // UPDATE SCORE
                 score++;
+                score1.setString("Score = " + to_string(score));
                 //ACTIVE LOG
                 logActive = true;
                 // Update TimeRemainin
@@ -216,11 +228,11 @@ int main()
                 // Set the player to right sie
                 sidePlayer = side::LEFT;
                 // set the player position
-                playerSprite.setPosition(580, 720);
+                playerSprite.setPosition((resolution.x/2)+200, (resolution.y/2)+150);
                 // Set axe position
-                axeSprite.setPosition(AXE_POSITION_LEFT, axeSprite.getPosition().y);
+                axeSprite.setPosition(playerSprite.getPosition().x-140,(playerSprite.getPosition().y)+120);
                 // set log position after fly
-                logSprite.setPosition(810, 720);
+                logSprite.setPosition((resolution.x/2)-(300/2), (resolution.y/2)+200);
                 logSpeedX = -5000;
                 // Update Branches
                 updateBranches(score);
@@ -235,18 +247,19 @@ int main()
             {
                 // UPDATE SCORE
                 score++;
+                score1.setString("Score = " + to_string(score));
                 //ACTIVE LOG
                 logActive = true;
                 // Update TimeRemainin
                 timeRemaining -= dt1.asSeconds();
                 // Set the player to right sie
-                sidePlayer = side::RIGHT;
+                sidePlayer = side::RIGHT;     
                 // set the player position
-                playerSprite.setPosition(1200, 720);
+                playerSprite.setPosition((resolution.x/2)-400, (resolution.y/2)+150);
                 // Set axe position
-                axeSprite.setPosition(AXE_POSITION_RIGHT, axeSprite.getPosition().y);
+                axeSprite.setPosition(playerSprite.getPosition().x+140,(playerSprite.getPosition().y)+120);
                 // set log position after fly
-                logSprite.setPosition(810, 720);
+                logSprite.setPosition((resolution.x/2)-(300/2), (resolution.y/2)+200);
                 logSpeedX = 5000;
                 // Update Branches
                 updateBranches(score);
@@ -443,8 +456,10 @@ int main()
         window.draw(ripSprite);
         window.draw(beeSprite1);
         window.draw(timeBar);
+        
    
         window.draw(messageText);
+        window.draw(score1);
         window.display();
     }
     return 0;
