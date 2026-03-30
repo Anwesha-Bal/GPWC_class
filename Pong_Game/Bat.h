@@ -36,4 +36,4 @@ class Bat{
         //update
         void update(Time dt);
 
-}
+};

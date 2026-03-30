@@ -16,20 +16,20 @@ int main(){
     int lives=3;
 
     //Create Bat
-    Bat bat(resolution.x/2,resolution.y-10);
+    Bat bat(resolution.x/2,resolution.y-50);
 
     //Create Ball
     Ball ball(resolution.x/2,0);
 
     //CREATE A TEXT OBJCT CALLED HUD(HEAD UP DISPLAY)
     Font font;
-    font.loadFromFile("/fonts/KOMIKAP_.ttf");
+    font.loadFromFile("./fonts/KOMIKAP_.ttf");
     Text hud;
     hud.setFont(font);
 
     //SET FONT SIZE
     hud.setCharacterSize(75);
-    hud.setColor(Color::Red); //Red is a static initial constant and color is a class not a enum value
+    hud.setFillColor(Color::Red); //Red is a static initial constant and color is a class not a enum value
     hud.setPosition(20.0,20.0);
 
     Clock clock;
@@ -60,7 +60,7 @@ int main(){
         }
         //RIGHT CURSOR MOVEMENT
         if(Keyboard::isKeyPressed(Keyboard::Right)){
-            if(((bat.get_Position().left)+(bat.get_Position().width))<=0){
+            if(((bat.get_Position().left)+(bat.get_Position().width))>=resolution.x){
                 bat.stopRight();
             }
             else{
@@ -76,8 +76,8 @@ int main(){
         
         //Update bat
         bat.update(dt);
-        //Update ball//////////////////////////////////////////////////////////////////////////
-        ball.updatePosition(dt);
+        //Update ball
+        ball.update(dt);
 
         //Udate the hud text
         std::stringstream ss;
@@ -87,11 +87,13 @@ int main(){
         //Handle ball hiting the bottom
         if(ball.getPosition().top>=resolution.y){
             lives--;
+
             if(lives<=0){
                 lives = 3;
                 score = 0;
             }
             ball.reboundBottom();
+            //ball.update(dt);
         }
         //Handle ball hitting the top
         if(ball.getPosition().top<=0){
@@ -103,7 +105,21 @@ int main(){
             ball.reboundSides();
         }
 
+        //Collision between bat and ball
+        if(ball.getPosition().intersects(bat.get_Position())){
+            score++;
+            ball.reboundBatOrTop();
+            ball.update(dt);//After collision position of ball
+            bat.update(dt);//After collision position of bat (According to Newton's 3rd law)
 
+        }
+
+        window.clear();
+        window.draw(ball.getShape());
+        window.draw(bat.get_Shape());
+        window.draw(hud);
+        window.display();
     }
+    return 0;
 
 }

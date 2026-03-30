@@ -1,6 +1,7 @@
 #include "Ball.h"
 
-//COnstuctor
+
+//Constuctor
 Ball :: Ball(float startX, float startY){
     m_Position.x = startX;
     m_Position.y = startY;
@@ -48,11 +49,13 @@ void Ball::reboundBottom(){
 
 //update position
 
-void Ball::updatePosition(Time dt){
-
+void Ball::update(Time dt){
     m_Position.x += m_DirectionX*m_Speed*dt.asSeconds();
     m_Position.y += m_DirectionY*m_Speed*dt.asSeconds();
+    
     m_Shape.setPosition(m_Position);
 
 
 }
+
+
