@@ -43,8 +43,10 @@ void Ball::reboundBatOrTop(){
 //rebound Bottom
 
 void Ball::reboundBottom(){
-    m_DirectionY = -m_DirectionY;
-    m_Shape.setPosition(500,0);
+    //m_DirectionY = -m_DirectionY;
+    m_Position.x=500.0;
+    m_Position.y=0.0;
+    //m_Shape.setPosition(m_Position);
 }
 
 //update position
