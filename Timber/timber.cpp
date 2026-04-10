@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include<iostream>
+#include<SFML/Audio.hpp>
 using namespace sf;
 using namespace std;
 
@@ -17,11 +18,17 @@ Sprite Branches[NUM_BRANCHES];
 int main()
 {
     Vector2f resolution;
-    resolution.x = VideoMode::getDesktopMode().width;
-    resolution.y = VideoMode::getDesktopMode().height;
+    //resolution.x = VideoMode::getDesktopMode().width;
+    //resolution.y = VideoMode::getDesktopMode().height;
+    resolution.x = 1920;
+    resolution.y = 1080;
 
     VideoMode vm(resolution.x, resolution.y);
     RenderWindow window(vm, "Timber Game!!");
+
+
+    View view(FloatRect(0,0,resolution.x,resolution.y));
+    //view.setCenter(Vector2f(1100,600));
 
     // SET BACKGROUND
     Texture backgroundTexture;
@@ -59,6 +66,8 @@ int main()
     Sprite cloudSprite3;
     cloudSprite3.setTexture(cloudTexture);
     // cloudSprite3.setPosition((resolution.x / 2) - 200, (resolution.y / 2) - 450);
+
+
 
     // BEE1
     float bee1Speed = 0.0f;
@@ -172,6 +181,14 @@ int main()
     // Control Player Input
     bool acceptInput = false;
     int score = 0;
+
+    SoundBuffer deadthBuffer;
+    deadthBuffer.loadFromFile("./Sprites/sound/death.wav");
+    Sound deadthSound;
+    deadthSound.setBuffer(deadthBuffer);
+
+
+
     // GAME LOOP
     while (window.isOpen())
     {
@@ -437,10 +454,19 @@ int main()
                 messageText.setOrigin((textRect.left + textRect.width) / 2.0, (textRect.top + textRect.height) / 2.0);
                 messageText.setPosition(resolution.x / 2, resolution.y / 2);
                 // PLAY DEATH SOUND
+                deadthSound.play();
             }
 
         } //......pauseHandling]
+
+
+        //SET VIEW 
+        window.setView(view);
+
+        //CLEAR WINDOW
         window.clear();
+
+        //DRAW
         window.draw(backgroundSprite);
         window.draw(cloudSprite1);
         window.draw(cloudSprite2);
