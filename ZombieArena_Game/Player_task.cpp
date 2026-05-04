@@ -221,9 +221,6 @@ void Player::stopDown()
 void Player::update(float elapsedTime, Vector2i mousePosition)
 {
 
-
-
-
 	// Keep the player in the arena
 
 	// Calculate the angle the player is facing
