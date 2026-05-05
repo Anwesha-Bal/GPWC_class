@@ -1,41 +1,41 @@
+//ACTUAL ZOMBIE FILE
 #include <SFML/Graphics.hpp>
 #include "Player.cpp"
+#include "CreateHorde_task.cpp"
+#include "Zombie_task.cpp"
 
 using namespace sf;
-//Declare createBAckground() passing VertexArray rVA and arena
-//Returns tilesize
-int createBackground(VertexArray &rVA , IntRect arena);
+
+int createBackground(VertexArray& rVA, IntRect arena);
 
 int main()
 {
 	// The game will always be in one of four states
-	enum class State{PAUSED,PLAYING,GAME_OVER,LEVELING_UP};
-	
+	enum class State { PAUSED, LEVELING_UP, GAME_OVER, PLAYING };
 	// Start with the GAME_OVER state
 	State state = State::GAME_OVER;
 
+	
 	// Get the screen resolution and create an SFML window
 	Vector2f resolution;
-	resolution.x = 1920;
-	resolution.y = 1080;
-	RenderWindow window(VideoMode(resolution.x,resolution.y),"Zombie Arena",Style::Fullscreen);
+	resolution.x = VideoMode::getDesktopMode().width;
+	resolution.y = VideoMode::getDesktopMode().height;
+
+	RenderWindow window(VideoMode(resolution.x, resolution.y),
+		"Zombie Arena", Style::Fullscreen);
 
 	// Create a an SFML View for the main action
-	View mainView(FloatRect(0,0,resolution.x,resolution.y));
-
+	View mainView(sf::FloatRect(0, 0, resolution.x, resolution.y));
 
 	// Here is our clock for timing everything
 	Clock clock;
-
 	// How long has the PLAYING state been active
-	int gameTimeTotal;
+	Time gameTimeTotal;
 
 	// Where is the mouse in relation to world coordinates
-	Vector2f mouseWorldPosition;	
-
+	Vector2f mouseWorldPosition;
 	// Where is the mouse in relation to screen coordinates
 	Vector2i mouseScreenPosition;
-
 
 	// Create an instance of the Player class
 	Player player;
@@ -43,13 +43,17 @@ int main()
 	// The boundaries of the arena
 	IntRect arena;
 
-	//Declare the background vertex arrray 
+	// Create the background
 	VertexArray background;
-
-	//Create and load the texture for background vertex Array
-	Texture backgroundTexture;
-	backgroundTexture.loadFromFile("./Resources/graphics/background_sheet.png");
-
+	// Load the texture for our background vertex array
+	Texture textureBackground; 
+	textureBackground.loadFromFile("./Resources/graphics/background_sheet.png");	
+	
+	//**********Prepare for a horde of zombies
+	int numZombies;
+	int numZombiesAlive;
+	Zombie* zombies = NULL;
+	//**********//
 
 	// The main game loop
 	while (window.isOpen())
@@ -65,143 +69,219 @@ int main()
 		while (window.pollEvent(event))
 		{
 			if (event.type == Event::KeyPressed)
-			{									
+			{
 				// Pause a game while playing
-				if(event.key.code==Keyboard::Enter && state==State::PLAYING){
+				if (event.key.code == Keyboard::Return &&
+					state == State::PLAYING)
+				{	
 					state = State::PAUSED;
 				}
-				
+
 				// Restart while paused
-				if(event.key.code==Keyboard::Enter && state==State::PAUSED){
+				else if (event.key.code == Keyboard::Return &&
+					state == State::PAUSED)
+				{
 					state = State::PLAYING;
-					clock.restart(); 
+					// Reset the clock so there isn't a frame jump
+					clock.restart();
 				}
 
-				// Start a new game while in GAME_OVER state, change state to level up
-				if(event.key.code==Keyboard::Enter && state==State::GAME_OVER){
-					state = State::PLAYING;
+				// Start a new game while in GAME_OVER state
+				else if (event.key.code == Keyboard::Return &&
+					state == State::GAME_OVER)
+				{
+					state = State::LEVELING_UP;
 				}
 
-				//some code will be added for playing state after
-				//code when in playing state
+				if (state == State::PLAYING)
+				{
+				}
+
 			}
 		}// End event polling
 
 
-		// Handle the player quitting
+		 // Handle the player quitting
+		if (Keyboard::isKeyPressed(Keyboard::Escape))
+		{
+			window.close();
+		}
 
 		// Handle controls while playing
 		if (state == State::PLAYING)
 		{
 			// Handle the pressing and releasing of the WASD keys
-			if(event.key.code==Keyboard::W){
+			if (Keyboard::isKeyPressed(Keyboard::W))
+			{
 				player.moveUp();
 			}
-			else{
+			else
+			{
 				player.stopUp();
 			}
-			if(event.key.code==Keyboard::S){
+
+			if (Keyboard::isKeyPressed(Keyboard::S))
+			{
 				player.moveDown();
 			}
-			else{
+			else
+			{
 				player.stopDown();
 			}
-			if(event.key.code==Keyboard::A){
+
+			if (Keyboard::isKeyPressed(Keyboard::A))
+			{
 				player.moveLeft();
 			}
-			else{
+			else
+			{
 				player.stopLeft();
 			}
-			if(event.key.code==Keyboard::D){
+
+			if (Keyboard::isKeyPressed(Keyboard::D))
+			{
 				player.moveRight();
 			}
-			else{
+			else
+			{
 				player.stopRight();
 			}
 
 		}// End WASD while playing
 
-		// Handle the levelling up state
+		 // Handle the levelling up state
 		if (state == State::LEVELING_UP)
 		{
 			// Handle the player levelling up
-			
+			if (event.key.code == Keyboard::Num1)
+			{
+				state = State::PLAYING;
+			}
+
+			if (event.key.code == Keyboard::Num2)
+			{
+				state = State::PLAYING;
+			}
+
+			if (event.key.code == Keyboard::Num3)
+			{
+				state = State::PLAYING;
+			}
+
+			if (event.key.code == Keyboard::Num4)
+			{
+				state = State::PLAYING;
+			}
+
+			if (event.key.code == Keyboard::Num5)
+			{
+				state = State::PLAYING;
+			}
+
+			if (event.key.code == Keyboard::Num6)
+			{
+				state = State::PLAYING;
+			}
+
 			if (state == State::PLAYING)
-			{			
-				// Prepare the level
+			{
+				// Prepare thelevel
 				// We will modify the next two lines later
 				arena.width = 500;
 				arena.height = 500;
 				arena.left = 0;
 				arena.top = 0;
 
-				//Call createbackground function
-				createBackground(background,arena);
-
-				// We will modify this line of code later
-				int tileSize = 50;
+				// Pass the vertex array by reference 
+				// to the createBackground function
+				int tileSize = createBackground(background, arena);
 
 				// Spawn the player in the middle of the arena
-				player.spawn(arena,resolution,tileSize);
+				player.spawn(arena, resolution, tileSize);
+
+				//******Create a horde of zombies
+				   numZombies = 2;
+
+				// Delete the previously allocated memory (if it exists)
+				   delete[] zombies;
+				   zombies = createHorde(numZombies, arena);
+				   numZombiesAlive = numZombies;
+				//*******//
+
 				// Reset the clock so there isn't a frame jump
 				clock.restart();
-				
 			}
 		}// End levelling up
 
-		/*
-		****************
-		UPDATE THE FRAME
-		****************
-		*/
+		 /*
+		 ****************
+		 UPDATE THE FRAME
+		 ****************
+		 */
 		if (state == State::PLAYING)
 		{
 			// Update the delta time
 			Time dt = clock.restart();
-			
 			// Update the total game time
-			gameTimeTotal+=dt.asSeconds();
-
+			gameTimeTotal += dt;
 			// Make a decimal fraction of 1 from the delta time
 			float dtAsSeconds = dt.asSeconds();
 
 			// Where is the mouse pointer
-			//Bydeafault returns screencordinate
-			mouseScreenPosition=Mouse::getPosition();
+			mouseScreenPosition = Mouse::getPosition();
 
 			// Convert mouse position to world coordinates of mainView
-			mouseWorldPosition = window.mapPixelToCoords(mouseScreenPosition,mainView);	
-			
+			mouseWorldPosition = window.mapPixelToCoords(
+				Mouse::getPosition(), mainView);
+
 			// Update the player
-			player.update(dtAsSeconds,mouseScreenPosition);
-			
+			player.update(dtAsSeconds, Mouse::getPosition());
+
 			// Make a note of the players new position
 			Vector2f playerPosition(player.getCenter());
 
-			// Make the view centre around the player
-			mainView.setCenter(playerPosition);
-			
+			// Make the view centre around the player				
+			mainView.setCenter(player.getCenter());
+			//mainView.setCenter(arena.width/2.0,arena.height/2.0);
+
+			//*******Loop through each Zombie and update them
+			for (int i = 0; i < numZombies; i++)
+			{
+				if (zombies[i].isAlive())
+				{
+					zombies[i].update(dt.asSeconds(), playerPosition);
+				}
+			}
+			//*******//
+
 		}// End updating the scene
 
-		/*
-		**************
-		Draw the scene
-		**************
-		*/
+		 /*
+		 **************
+		 Draw the scene
+		 **************
+		 */
 
 		if (state == State::PLAYING)
 		{
 			window.clear();
 
 			// set the mainView to be displayed in the window
-			window.setView(mainView);			
+			// And draw everything related to it
+			window.setView(mainView);
 
-			//Draw background
-			window.draw(background,&backgroundTexture);
-			
+			// Draw the background
+			window.draw(background, &textureBackground);
+
+			//******Draw the zombies
+			for (int i = 0; i < numZombies; i++)
+			{
+				window.draw(zombies[i].getSprite());
+			}
+			//******//
+
 			// Draw the player
-			window.draw(player.getSprite()); 
-			
+			window.draw(player.getSprite());
 		}
 
 		if (state == State::LEVELING_UP)
@@ -231,52 +311,57 @@ int createBackground(VertexArray& rVA, IntRect arena)
 	const int TILE_SIZE = 50;
 	const int TILE_TYPES = 3;
 	const int VERTS_IN_QUAD = 4;
-	
-	//****declare and initialize arena width(worldWidth)
-	//****and arena height(worldHeight) in terms of no. of tiles  
 
+	int worldWidth = arena.width / TILE_SIZE;
+	int worldHeight = arena.height / TILE_SIZE;
 
-	//****What type of primitive are we using?
-	
+	// What type of primitive are we using?
+	rVA.setPrimitiveType(Quads);
 
-	//****Set the size of the vertex array
-	
+	// Set the size of the vertex array
+	rVA.resize(worldWidth * worldHeight * VERTS_IN_QUAD);
 
-	//****Start at the beginning of the vertex array
-	
+	// Start at the beginning of the vertex array
+	int currentVertex = 0;
 
 	for (int w = 0; w < worldWidth; w++)
 	{
 		for (int h = 0; h < worldHeight; h++)
 		{
-			//****Position each vertex in the current quad
+			// Position each vertex in the current quad
+			rVA[currentVertex + 0].position = Vector2f(w * TILE_SIZE, h * TILE_SIZE);
+			rVA[currentVertex + 1].position = Vector2f((w * TILE_SIZE) + TILE_SIZE, h * TILE_SIZE);
+			rVA[currentVertex + 2].position = Vector2f((w * TILE_SIZE) + TILE_SIZE, (h * TILE_SIZE) + TILE_SIZE);
+			rVA[currentVertex + 3].position = Vector2f((w * TILE_SIZE), (h * TILE_SIZE) + TILE_SIZE);
 
-
-			//****Define the position in the Texture to draw for current quad
-			//****Either mud, stone, grass or wall
+			// Define the position in the Texture to draw for current quad
+			// Either mud, stone, grass or wall
 			if (h == 0 || h == worldHeight - 1 || w == 0 || w == worldWidth - 1)
 			{
-				//****Use the wall texture
-				
+				// Use the wall texture
+				rVA[currentVertex + 0].texCoords = Vector2f(0, 0 + TILE_TYPES * TILE_SIZE);
+				rVA[currentVertex + 1].texCoords = Vector2f(TILE_SIZE, 0 + TILE_TYPES * TILE_SIZE);
+				rVA[currentVertex + 2].texCoords = Vector2f(TILE_SIZE, TILE_SIZE + TILE_TYPES * TILE_SIZE);
+				rVA[currentVertex + 3].texCoords = Vector2f(0, TILE_SIZE + TILE_TYPES * TILE_SIZE);
 			}
 			else
 			{
-				//Use a random floor texture
-				/*srand((int)time(0) + h * w - h);
+				// Use a random floor texture
+				srand((int)time(0) + h * w - h);
 				int mOrG = (rand() % TILE_TYPES);
 				int verticalOffset = mOrG * TILE_SIZE;
-				*/
-				
-				//****Use the random texture
 
+				rVA[currentVertex + 0].texCoords = Vector2f(0, 0 + verticalOffset);
+				rVA[currentVertex + 1].texCoords = Vector2f(TILE_SIZE, 0 + verticalOffset);
+				rVA[currentVertex + 2].texCoords = Vector2f(TILE_SIZE, TILE_SIZE + verticalOffset);
+				rVA[currentVertex + 3].texCoords = Vector2f(0, TILE_SIZE + verticalOffset);
 
 			}
 
-			//****Position ready for the next for vertices
-
-		}//end of inner for
-	}//end of outer for
+			// Position ready for the next for vertices
+			currentVertex = currentVertex + VERTS_IN_QUAD;
+		}
+	}
 
 	return TILE_SIZE;
-}s
-
+}
