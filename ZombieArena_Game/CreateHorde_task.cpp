@@ -1,9 +1,9 @@
 #include "Zombie_task.cpp"
 //createHorde() function
-Zombie* createHorde(int numZombies, IntRect arena)
+Zombie_task* createHorde(int numZombies, IntRect arena)
 {
 	//array of objects of type Zombie
-	Zombie *zombies=new Zombie[numZombies];  //Poiner to zombie class
+	Zombie_task *zombies=new Zombie[numZombies];  //Poiner to zombie class
 
 	//arena wall-boundary to spawn zombies minX,maxX,minY,maxY
 	int minX = arena.left+20;
