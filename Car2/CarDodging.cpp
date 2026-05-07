@@ -376,11 +376,9 @@ int main()
         {
             messageText.setString(
                 "PRESS ENTER TO START\n\n"
-                "1 = EASY\n"
-                "2 = MEDIUM\n"
-                "3 = HARD\n\n"
-                "A/D = MOVE\n"
-                "P = PAUSE"
+                "1 : EASY\n"
+                "2 : MEDIUM\n"
+                "3 : HARD\n\n"
             );
         }
 
