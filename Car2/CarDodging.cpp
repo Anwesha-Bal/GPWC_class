@@ -302,11 +302,7 @@ int main()
                 player.stopRight();
             }
 
-            player.update(
-                dt,
-                40,
-                resolution.x - 40
-            );
+            player.update(dt);
 
             for (int i = 0; i < numRoadLines; i++)
             {
