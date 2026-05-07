@@ -277,11 +277,7 @@ int main()
                 player.stopRight();
             }
 
-            player.update(
-                dt,
-                40,
-                resolution.x - 40
-            );
+            player.update(dt);
 
             for (int i = 0; i < numRoadLines; i++)
             {
@@ -363,11 +359,7 @@ int main()
 
         std::stringstream ss;
 
-        ss << "SCORE : "
-           << score
-
-           << "      SPEED : "
-           << static_cast<int>(gameSpeed);
+        ss << "SCORE : "<< score<< "      SPEED : "<< static_cast<int>(gameSpeed);
 
         hud.setString(ss.str());
 
