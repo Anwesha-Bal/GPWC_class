@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <ctime>
 #include <sstream>
+
 #include "Car.h"
 #include "PlayerCar.h"
 #include "EnemyCar.h"
@@ -68,33 +69,22 @@ int main()
 
     hud.setOutlineThickness(3);
 
-    hud.setPosition(50, 40);
-
-    float roadWidth = 700;
-
-    float leftBoundary =
-        resolution.x / 2 - roadWidth / 2;
-
-    float rightBoundary =
-        resolution.x / 2 + roadWidth / 2;
+    hud.setPosition(40, 30);
 
     RectangleShape road;
 
     road.setSize(
         Vector2f(
-            roadWidth,
+            resolution.x,
             resolution.y
         )
     );
 
     road.setFillColor(
-        Color(40, 40, 40)
+        Color(45, 45, 45)
     );
 
-    road.setPosition(
-        leftBoundary,
-        0
-    );
+    road.setPosition(0, 0);
 
     const int numRoadLines = 20;
 
@@ -125,12 +115,13 @@ int main()
         );
     }
 
-    float lanes[4];
+    float lanes[5];
 
-    lanes[0] = resolution.x / 2 - 250;
-    lanes[1] = resolution.x / 2 - 80;
-    lanes[2] = resolution.x / 2 + 80;
-    lanes[3] = resolution.x / 2 + 250;
+    lanes[0] = resolution.x * 0.15f;
+    lanes[1] = resolution.x * 0.32f;
+    lanes[2] = resolution.x * 0.50f;
+    lanes[3] = resolution.x * 0.68f;
+    lanes[4] = resolution.x * 0.85f;
 
     PlayerCar player(
         resolution.x / 2,
@@ -286,7 +277,11 @@ int main()
                 player.stopRight();
             }
 
-            player.update(dt);
+            player.update(
+                dt,
+                40,
+                resolution.x - 40
+            );
 
             for (int i = 0; i < numRoadLines; i++)
             {
@@ -317,7 +312,7 @@ int main()
                     {
                         enemies[i] = new EnemyCar();
 
-                        int randomLane = rand() % 4;
+                        int randomLane = rand() % 5;
 
                         enemies[i]->spawn(
                             lanes[randomLane],
@@ -368,7 +363,11 @@ int main()
 
         std::stringstream ss;
 
-        ss << "SCORE : " << score<< "SPEED : "<< static_cast<int>(gameSpeed);
+        ss << "SCORE : "
+           << score
+
+           << "      SPEED : "
+           << static_cast<int>(gameSpeed);
 
         hud.setString(ss.str());
 
@@ -378,7 +377,7 @@ int main()
                 "PRESS ENTER TO START\n\n"
                 "1 : EASY\n"
                 "2 : MEDIUM\n"
-                "3 : HARD\n\n"
+                "3 : HARD"
             );
         }
 
@@ -390,9 +389,7 @@ int main()
             );
         }
 
-        window.clear(
-            Color(20, 120, 20)
-        );
+        window.clear(Color::Black);
 
         window.draw(road);
 
