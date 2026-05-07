@@ -1,15 +1,10 @@
-#include "Car.cpp"
+#include "EnemyCar.h"
 #include <string>
 
-class EnemyCar : public Car {
-private:
-    float screenHeight;
-
-public:
-    EnemyCar() {
+    EnemyCar::EnemyCar() {
         screenHeight = (float)VideoMode::getDesktopMode().height;
     }
-    void spawn(float startX, int type, float globalSpeedMultiplier) {
+    void EnemyCar::spawn(float startX, int type, float globalSpeedMultiplier) {
         std::string path;
         float baseSpeed = 0;
 
@@ -30,12 +25,11 @@ public:
         setPosition(startX, -200.0f); 
     }
 
-    void update(Time dt) {
+    void EnemyCar::update(Time dt) {
         m_Position.y += m_Speed * dt.asSeconds();
         m_Sprite.setPosition(m_Position);
     }
 
-    bool isOffScreen() {
+    bool EnemyCar::isOffScreen() {
         return m_Position.y > screenHeight + 100;
     }
-};

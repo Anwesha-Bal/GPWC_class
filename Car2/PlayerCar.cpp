@@ -1,68 +1,60 @@
-#include "EnemyCar.h"
-#include <string>
-EnemyCar::EnemyCar()
+#include "PlayerCar.h"
+
+PlayerCar::PlayerCar(float startX, float startY)
 {
-    screenHeight =
-        (float)VideoMode::getDesktopMode().height;
+    resolution.x = VideoMode::getDesktopMode().width;
+    resolution.y = VideoMode::getDesktopMode().height;
+
+    m_Texture.loadFromFile("./Assets/WhiteCar.png");
+    m_Sprite.setTexture(m_Texture);
+
+    FloatRect bounds = m_Sprite.getLocalBounds();
+
+    m_Sprite.setOrigin(
+        bounds.width / 2.0f,
+        bounds.height / 2.0f
+    );
+
+    setPosition(startX, startY);
+
+    m_Speed = 400.0f;
 }
 
-void EnemyCar::spawn(
-    float startX,
-    int type,
-    float globalSpeedMultiplier)
+void PlayerCar::moveLeft()
 {
-    std::string path;
-
-    float baseSpeed = 0;
-
-    switch (type)
-    {
-        case 0:
-            path = "./Assets/RedCar1.png";
-            baseSpeed = 150.0f;
-            break;
-
-        case 1:
-            path = "./Assets/RedCar2.png";
-            baseSpeed = 200.0f;
-            break;
-
-        case 2:
-            path = "./Assets/YellowCar1.png";
-            baseSpeed = 100.0f;
-            break;
-
-        case 3:
-            path = "./Assets/YellowCar2.png";
-            baseSpeed = 100.0f;
-            break;
-
-        case 4:
-            path = "./Assets/YellowCar3.png";
-            baseSpeed = 100.0f;
-            break;
-    }
-
-    if (m_Texture.loadFromFile(path))
-    {
-        m_Sprite.setTexture(m_Texture);
-    }
-
-    m_Speed =
-        baseSpeed + globalSpeedMultiplier;
-
-    setPosition(startX, -200.0f);
+    moving_left = true;
 }
 
-void EnemyCar::update(Time dt)
+void PlayerCar::moveRight()
 {
-    m_Position.y +=
-        m_Speed * dt.asSeconds();
+    moving_right = true;
+}
+
+void PlayerCar::stopLeft()
+{
+    moving_left = false;
+}
+
+void PlayerCar::stopRight()
+{
+    moving_right = false;
+}
+
+void PlayerCar::update(Time dt)
+{
+    float distance = m_Speed * dt.asSeconds();
+
+    if (moving_left &&
+        m_Position.x - distance > 0)
+    {
+        m_Position.x -= distance;
+    }
+
+    if (moving_right &&
+        m_Position.x + distance < resolution.x)
+    {
+        m_Position.x += distance;
+    }
 
     m_Sprite.setPosition(m_Position);
-}
-
-bool EnemyCar::isOffScreen()
-{
-    return m_Position.y > screenHeight + 100;
 }
