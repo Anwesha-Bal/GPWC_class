@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <ctime>
 #include <sstream>
 
@@ -43,7 +44,6 @@ int main()
     window.setFramerateLimit(60);
 
     Font font;
-
     font.loadFromFile("./Assets/KOMIKAP_.ttf");
 
     Text messageText;
@@ -60,7 +60,6 @@ int main()
     Text hud;
 
     hud.setFont(font);
-
     hud.setCharacterSize(45);
 
     hud.setFillColor(Color::Yellow);
@@ -70,6 +69,25 @@ int main()
     hud.setOutlineThickness(3);
 
     hud.setPosition(40, 30);
+
+
+
+    SoundBuffer engineBuffer;
+    engineBuffer.loadFromFile("./Assets/car.mp3");
+
+    Sound engineSound;
+    engineSound.setBuffer(engineBuffer);
+    engineSound.setLoop(true);
+
+
+
+    SoundBuffer crashBuffer;
+    crashBuffer.loadFromFile("./Assets/crash.mp3");
+
+    Sound crashSound;
+    crashSound.setBuffer(crashBuffer);
+
+
 
     RectangleShape road;
 
@@ -221,6 +239,9 @@ int main()
 
                 spawnTimer = 0;
 
+                engineSound.stop();
+                engineSound.play();
+
                 player.setPosition(
                     resolution.x / 2,
                     resolution.y - 220
@@ -245,10 +266,14 @@ int main()
                 if (state == State::PLAYING)
                 {
                     state = State::PAUSED;
+
+                    engineSound.pause();
                 }
                 else if (state == State::PAUSED)
                 {
                     state = State::PLAYING;
+
+                    engineSound.play();
                 }
             }
         }
@@ -277,7 +302,11 @@ int main()
                 player.stopRight();
             }
 
-            player.update(dt);
+            player.update(
+                dt,
+                40,
+                resolution.x - 40
+            );
 
             for (int i = 0; i < numRoadLines; i++)
             {
@@ -340,6 +369,10 @@ int main()
                         )
                     )
                     {
+                        crashSound.play();
+
+                        engineSound.stop();
+
                         state = State::GAMEOVER;
                     }
 
@@ -359,7 +392,11 @@ int main()
 
         std::stringstream ss;
 
-        ss << "SCORE : "<< score<< "      SPEED : "<< static_cast<int>(gameSpeed);
+        ss << "SCORE : "
+           << score
+
+           << "      SPEED : "
+           << static_cast<int>(gameSpeed);
 
         hud.setString(ss.str());
 
