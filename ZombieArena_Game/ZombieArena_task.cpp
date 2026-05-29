@@ -6,7 +6,7 @@
 
 using namespace sf;
 
-int createBackground(VertexArray& mrVA, IntRect arena);
+int createBackground(VertexArray& rVA, IntRect arena);
 
 int main()
 {
@@ -18,8 +18,8 @@ int main()
 	
 	// Get the screen resolution and create an SFML window
 	Vector2f resolution;
-	resolution.x = 1920;
-	resolution.y = 1080;
+	resolution.x = 1920; //VideoMode::getDesktopMode().width;
+	resolution.y = 1080; //VideoMode::getDesktopMode().height;
 
 	RenderWindow window(VideoMode(resolution.x, resolution.y), "Zombie Arena", Style::Fullscreen);
 
